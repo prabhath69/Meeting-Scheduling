@@ -1,0 +1,356 @@
+{
+  "name": "Onima Scheduling",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1bI8jd_7Xj8U83hUgMVjv5VxRs7bMsvWN7FHa7c25aa0",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1bI8jd_7Xj8U83hUgMVjv5VxRs7bMsvWN7FHa7c25aa0/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Business Name": "={{ $json.body.record.business_name }}",
+            "Description": "={{ $json.body.record.description }}",
+            "Pain Points": "={{ $json.body.record.pain_points }}",
+            "Email": "={{ $json.body.record.email }}",
+            "Name": "={{ $json.body.record.name }}"
+          },
+          "matchingColumns": [
+            "Name"
+          ],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Business Name",
+              "displayName": "Business Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Description",
+              "displayName": "Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Pain Points",
+              "displayName": "Pain Points",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        220,
+        0
+      ],
+      "id": "d5e4a71e-35ea-464f-8834-3727fcb07019",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PFqJe7bM08zrMw8l",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "a2fb0fe4-6a86-48f3-821c-202104be1f96",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "d900177e-9cca-44ff-894d-e0bc2f6c88ea",
+      "name": "Webhook",
+      "webhookId": "a2fb0fe4-6a86-48f3-821c-202104be1f96"
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "prabhub480@gmail.com",
+          "mode": "list",
+          "cachedResultName": "prabhub480@gmail.com"
+        },
+        "start": "2025-06-05T06:00:00",
+        "end": "2025-06-05T07:00:00",
+        "additionalFields": {
+          "conferenceDataUi": {
+            "conferenceDataValues": {
+              "conferenceSolution": "hangoutsMeet"
+            }
+          },
+          "summary": "=Meeting with {{ $('Google Sheets').item.json.Name }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        1080,
+        0
+      ],
+      "id": "b7a099b7-30d3-4c27-b2d0-427c85ce225a",
+      "name": "Google Calendar",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "6K1qgSFJKBBz9ml0",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Google Sheets').item.json.Email }}",
+        "subject": "Meeting Schedule",
+        "emailType": "text",
+        "message": "=The meeting is scheduled on the time you specified and the meeting link is : {{ $json.conferenceData.entryPoints[0].uri }}\n\n\nHope we have a good call and let's solve your problem together with AI!!",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1300,
+        0
+      ],
+      "id": "488615b2-4030-452d-a245-dba9750fa8ae",
+      "name": "Gmail1",
+      "webhookId": "267a9f37-404f-4f41-92fa-d4fa2150cc35",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "cFFheCtUoJbpKDNA",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Name:  {{ $('Google Sheets').item.json.Name }}\nName of the company: {{ $('Google Sheets').item.json['Business Name'] }}\nDescription: {{ $('Google Sheets').item.json.Description }}\nPain Points: {{ $('Google Sheets').item.json['Pain Points'] }}\n\nMake sure to give output of the form subject and body.\nGive the subject and body of the email. Send the output to the tool.",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are an email writer to schedule a meeting for a big AI automation company that helps businesses automate their workflow and reduce man power. \n\nWrite the email on behalf of \"Prabhath\" who is the founder and CEO of \"Onima\" which is a AI automation company that is mentioned above. \n\n\nYour job is to write a email based on the clients's given name of the company, description, and pain points which are given by the user. Give the subject and body of the email only."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        460,
+        0
+      ],
+      "id": "1422b481-f56c-43b6-ba73-d5072c54b128",
+      "name": "AI Agent",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        420,
+        220
+      ],
+      "id": "e913c3dc-50fa-47d2-9356-692bd12e7549",
+      "name": "Groq Chat Model2",
+      "credentials": {
+        "groqApi": {
+          "id": "bzMCUjIVtEybCO3o",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "sendTo": "={{ $('Google Sheets').item.json.Email }}",
+        "subject": "={{ $json.output.subject }}",
+        "message": "={{ $json.output.body }} \\n\\n Are you willing to attend a quick meeting with our team at 6PM tomorrow?",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        820,
+        0
+      ],
+      "id": "587e95c3-c9fa-4b5a-9245-3677716011ac",
+      "name": "Gmail2",
+      "webhookId": "0afc39c9-4596-4d38-91e7-57bf29931a94",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "cFFheCtUoJbpKDNA",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"subject\": \"\",\n\t\"body\": \"\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        680,
+        220
+      ],
+      "id": "f30355ca-aff9-41bd-aab2-e5fa796819b7",
+      "name": "Structured Output Parser1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Calendar": {
+      "main": [
+        [
+          {
+            "node": "Gmail1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail1": {
+      "main": [
+        []
+      ]
+    },
+    "Groq Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Gmail2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail2": {
+      "main": [
+        [
+          {
+            "node": "Google Calendar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "994fa3f7-5198-47ac-83b6-59650b7f5d3a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "bb15867eb79ce1e55fdb60d950a74a97a22f15103b52b2440a52acbf0f1c0735"
+  },
+  "id": "fjg5xj3vFdmVSwZ2",
+  "tags": []
+}
